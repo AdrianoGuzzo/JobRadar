@@ -18,7 +18,7 @@ namespace JobRadar.Infrastructure.Discord;
 /// novas tentativas do JobRadar (ADR-002), a partir da classificação daqui.
 /// </summary>
 public sealed partial class DiscordNotificationService(IOptions<DiscordOptions> options, ILogger<DiscordNotificationService> logger)
-    : IDiscordNotificationService, IAsyncDisposable
+    : IDiscordNotificationService, IAsyncDisposable, IDisposable
 {
     private readonly DiscordOptions _options = options.Value;
 
@@ -66,6 +66,14 @@ public sealed partial class DiscordNotificationService(IOptions<DiscordOptions> 
     public async ValueTask DisposeAsync()
     {
         await ResetAsync();
+        _connection.Dispose();
+    }
+
+    public void Dispose()
+    {
+        _client?.Dispose();
+        _client = null;
+        _channel = null;
         _connection.Dispose();
     }
 

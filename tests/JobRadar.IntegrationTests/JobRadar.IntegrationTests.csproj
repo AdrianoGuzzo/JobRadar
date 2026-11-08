@@ -2,8 +2,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\JobRadar.Infrastructure\JobRadar.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\JobRadar.Worker\JobRadar.Worker.csproj" />
     <!-- O executável dublê do claude é copiado para a pasta dos testes. -->
     <ProjectReference Include="..\JobRadar.FakeClaude\JobRadar.FakeClaude.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\config\profile.example.json" Link="Fixtures\profile.example.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\JobRadar.UnitTests\Fixtures\LinkedIn\*.eml" Link="Fixtures\LinkedIn\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
