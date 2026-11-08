@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Um "claude -p" de mentira para os testes do ClaudeCodeJobAnalyzer (ADR-003).
+    O cenário vem de FAKE_CLAUDE_SCENARIO; nenhum teste depende de conta do Claude.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+</Project>

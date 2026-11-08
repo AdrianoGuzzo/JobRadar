@@ -7,6 +7,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/JobRadar.UnitTests/JobRadar.UnitTests.csproj" />
     <Project Path="tests/JobRadar.IntegrationTests/JobRadar.IntegrationTests.csproj" />
+    <Project Path="tests/JobRadar.FakeClaude/JobRadar.FakeClaude.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />

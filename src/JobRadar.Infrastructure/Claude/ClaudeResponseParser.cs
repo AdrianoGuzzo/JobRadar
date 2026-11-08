@@ -35,6 +35,31 @@ public static class ClaudeResponseParser
         return ToAnalysis(root);
     }
 
+    /// <summary>O erro relatado num envelope de erro do CLI, ou <c>null</c> se a saída não é um.</summary>
+    public static JobAnalysisException? TryReadError(string stdout)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(stdout);
+            var root = document.RootElement;
+
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("is_error", out var isError) && isError.ValueKind == JsonValueKind.True)
+            {
+                ParseEnvelope(root);
+            }
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+        catch (JobAnalysisException exception)
+        {
+            return exception;
+        }
+
+        return null;
+    }
+
     /// <summary>Erros de autenticação e cobrança não se resolvem sozinhos; o resto (limite, sobrecarga, 5xx) sim.</summary>
     public static FailureKind Classify(string message, int? apiErrorStatus)
     {

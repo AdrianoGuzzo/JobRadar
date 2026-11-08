@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\JobRadar.Infrastructure\JobRadar.Infrastructure.csproj" />
+    <!-- O executável dublê do claude é copiado para a pasta dos testes. -->
+    <ProjectReference Include="..\JobRadar.FakeClaude\JobRadar.FakeClaude.csproj" />
   </ItemGroup>
 
   <ItemGroup>

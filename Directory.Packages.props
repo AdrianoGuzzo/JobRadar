@@ -12,6 +12,7 @@
 
   <ItemGroup Label="Platform">
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup Label="Persistence">
