@@ -1,0 +1,17 @@
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+TestResults/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+
+# Segredos e configuração local: nunca versionar.
+.env
+.env.*
+!.env.example
+config/profile.json

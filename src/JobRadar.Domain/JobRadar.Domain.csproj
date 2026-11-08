@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Domain não depende de nenhum outro projeto do JobRadar nem de pacotes de infraestrutura. -->
+
+</Project>
