@@ -1,0 +1,53 @@
+From: LinkedIn Job Alerts <jobalerts-noreply@linkedin.com>
+To: candidato@example.com
+Subject: =?UTF-8?Q?=E2=80=9Cdesenvolvedor_.net=E2=80=9D:_Agro_Tech_-_Desenvolvedor_.NET_S=C3=AAnior_e_mais?=
+Date: Sun, 08 Nov 2026 09:00:00 +0000
+Message-ID: <alerta-001@example.linkedin.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b1"
+
+--b1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Suas vagas recomendadas (FIXTURE SINTÉTICA)
+
+Desenvolvedor .NET Sênior
+Agro Tech
+São Paulo, SP (Remoto)
+Ver vaga: https://www.linkedin.com/comm/jobs/view/4012345678/?trackingId=abc&refId=def
+--b1
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<html><body>
+<!-- FIXTURE SINTÉTICA: estrutura inspirada nos alertas de vaga do LinkedIn. -->
+<table role="presentation"><tr><td>
+  <h2>Suas vagas recomendadas</h2>
+  <table class="job-card"><tr>
+    <td><a href="https://www.linkedin.com/comm/jobs/view/4012345678/?trackingId=abc%3D%3D&amp;refId=def&amp;lipi=urn&amp;midToken=t1&amp;trk=eml-email_job_alert_digest_01-job_card-0-jobcard_body"><img src="https://media.example.com/logo1.png" alt="Agro Tech"></a></td>
+    <td>
+      <a href="https://www.linkedin.com/comm/jobs/view/4012345678/?trackingId=abc%3D%3D&amp;refId=def&amp;trk=eml-job_title"><span>Desenvolvedor .NET Sênior</span></a>
+      <p>Agro Tech · São Paulo, SP (Remoto)</p>
+      <p>Candidatura simplificada</p>
+    </td>
+  </tr></table>
+  <table class="job-card"><tr>
+    <td><a href="https://www.linkedin.com/comm/jobs/view/engenheiro-de-software-backend-at-empresa-exemplo-4098765432?trk=eml-logo"><img src="https://media.example.com/logo2.png" alt=""></a></td>
+    <td>
+      <a href="https://www.linkedin.com/comm/jobs/view/engenheiro-de-software-backend-at-empresa-exemplo-4098765432?trk=eml-title">Engenheiro de Software Backend (C#)</a>
+      <p>Empresa Exemplo</p>
+      <p>Curitiba, PR (Híbrido)</p>
+    </td>
+  </tr></table>
+  <table class="job-card"><tr>
+    <td>
+      <a href="https://www.linkedin.com/comm/jobs/view/4055555555/?trk=eml-title">Tech Lead .NET</a>
+      <p>Fintech X</p>
+      <a href="https://www.linkedin.com/comm/jobs/view/4055555555/?trk=eml-cta">Ver vaga</a>
+    </td>
+  </tr></table>
+  <p><a href="https://www.linkedin.com/comm/jobs/search/?keywords=.net">Ver todas as vagas</a></p>
+</td></tr></table>
+</body></html>
+--b1--

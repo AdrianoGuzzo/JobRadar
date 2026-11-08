@@ -27,6 +27,11 @@
     <PackageVersion Include="Discord.Net.Rest" Version="3.20.2" />
   </ItemGroup>
 
+  <ItemGroup Label="Email">
+    <PackageVersion Include="MailKit" Version="4.18.2" />
+    <PackageVersion Include="AngleSharp" Version="1.10.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Testing">
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />

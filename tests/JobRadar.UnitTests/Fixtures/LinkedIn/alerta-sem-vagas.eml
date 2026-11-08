@@ -1,0 +1,14 @@
+From: LinkedIn <jobalerts-noreply@linkedin.com>
+To: candidato@example.com
+Subject: Sua busca de vagas
+Date: Sun, 08 Nov 2026 10:00:00 +0000
+Message-ID: <alerta-002@example.linkedin.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<html><body>
+<!-- FIXTURE SINTÉTICA -->
+<p>Não encontramos novas vagas para a sua busca hoje.</p>
+<p><a href="https://www.linkedin.com/comm/jobs/search/?keywords=.net">Ver busca</a></p>
+</body></html>
