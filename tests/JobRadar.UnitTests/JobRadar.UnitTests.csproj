@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <None Include="Fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\config\profile.example.json" Link="Fixtures\profile.example.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

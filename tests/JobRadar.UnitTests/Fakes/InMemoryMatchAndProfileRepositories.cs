@@ -49,10 +49,13 @@ internal sealed class InMemoryCandidateProfileRepository : ICandidateProfileRepo
 {
     public CandidateProfile? Profile { get; set; }
 
+    public int SaveCount { get; private set; }
+
     public Task<CandidateProfile?> GetActiveAsync(CancellationToken cancellationToken) => Task.FromResult(Profile);
 
     public Task SaveAsync(CandidateProfile profile, CancellationToken cancellationToken)
     {
+        SaveCount++;
         Profile = profile;
         return Task.CompletedTask;
     }

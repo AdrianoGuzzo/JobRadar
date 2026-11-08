@@ -1,0 +1,18 @@
+{
+  // Copie para config/profile.json (fora do git) e ajuste. Comentários são permitidos.
+  // Toda mudança gera uma nova versão do perfil; vagas novas passam a usar a nova versão.
+  "name": "Candidato de demonstração",
+  "headline": "Desenvolvedor Full Stack / Backend",
+  "yearsOfExperience": 10,
+  "desiredRoles": ["Desenvolvedor Backend .NET", "Desenvolvedor Full Stack"],
+  "seniority": "Sênior",
+  "requiredTechnologies": ["C#", ".NET", "ASP.NET Core"],
+  "desiredTechnologies": ["Kafka", "Docker"],
+  // Valores aceitos: Remote, Hybrid, OnSite.
+  "workModes": ["Remote", "Hybrid"],
+  "locations": ["Brasil"],
+  "salaryExpectation": null,
+  "languages": ["Português (nativo)", "Inglês (intermediário)"],
+  "experience": ["Sistemas corporativos", "Agronegócio"],
+  "additionalPreferences": []
+}
