@@ -22,6 +22,11 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14" />
   </ItemGroup>
 
+  <ItemGroup Label="Discord">
+    <!-- Só a API REST: o MVP não precisa de gateway (ADR-005). -->
+    <PackageVersion Include="Discord.Net.Rest" Version="3.20.2" />
+  </ItemGroup>
+
   <ItemGroup Label="Testing">
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />
