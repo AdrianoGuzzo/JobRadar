@@ -50,3 +50,7 @@ generated_code = true
 dotnet_diagnostic.IDE0161.severity = none
 dotnet_diagnostic.IDE0011.severity = none
 dotnet_diagnostic.IDE0300.severity = none
+
+# Windows PowerShell 5.1 lê .ps1 sem BOM como ANSI.
+[*.ps1]
+charset = utf-8-bom
