@@ -32,6 +32,12 @@ public sealed class ClaudeCliVersionCheck(IOptions<ClaudeCliOptions> options)
             environment[name] = value;
         }
 
+        if (settings.RequireOAuthToken && !environment.TryGetValue("CLAUDE_CODE_OAUTH_TOKEN", out _))
+        {
+            return new ClaudeCliCheckResult(
+                false, null, "Defina CLAUDE_CODE_OAUTH_TOKEN (gere com \"claude setup-token\" numa máquina com navegador e coloque no .env).");
+        }
+
         ProcessResult result;
 
         try

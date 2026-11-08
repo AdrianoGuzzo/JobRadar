@@ -38,6 +38,12 @@ public sealed class ClaudeCliOptions
     /// <summary>Envia o <c>--json-schema</c> para o Claude validar a resposta.</summary>
     public bool UseJsonSchema { get; set; } = true;
 
+    /// <summary>
+    /// Exige <c>CLAUDE_CODE_OAUTH_TOKEN</c> no startup (ligado na imagem Docker, onde
+    /// não há login interativo). Sem ele, toda análise falharia por autenticação.
+    /// </summary>
+    public bool RequireOAuthToken { get; set; }
+
     [Range(1_000, 50_000_000)]
     public int MaxOutputChars { get; set; } = 1_000_000;
 

@@ -40,6 +40,29 @@ public sealed class ClaudeCliVersionCheckTests
     }
 
     [Fact]
+    public async Task Should_Require_OAuth_Token_When_Configured_To()
+    {
+        Assert.SkipWhen(Environment.GetEnvironmentVariable("CLAUDE_CODE_OAUTH_TOKEN") is { Length: > 0 }, "O ambiente do teste já tem o token.");
+        var options = new ClaudeCliOptions { ExecutablePath = FakeClaude, RequireOAuthToken = true };
+
+        var result = await new ClaudeCliVersionCheck(Options.Create(options)).CheckAsync(Ct);
+
+        result.IsUsable.Should().BeFalse();
+        result.Problem.Should().Contain("CLAUDE_CODE_OAUTH_TOKEN").And.Contain("claude setup-token");
+    }
+
+    [Fact]
+    public async Task Should_Accept_OAuth_Token_When_Required_And_Present()
+    {
+        var options = new ClaudeCliOptions { ExecutablePath = FakeClaude, RequireOAuthToken = true };
+        options.AdditionalEnvironment["CLAUDE_CODE_OAUTH_TOKEN"] = "sk-ant-oat01-token-de-teste";
+
+        var result = await new ClaudeCliVersionCheck(Options.Create(options)).CheckAsync(Ct);
+
+        result.IsUsable.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Should_Report_Missing_Executable()
     {
         var check = new ClaudeCliVersionCheck(Options.Create(new ClaudeCliOptions { ExecutablePath = Path.Combine(Path.GetTempPath(), "nao-existe-claude.exe") }));

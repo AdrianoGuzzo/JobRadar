@@ -1,6 +1,8 @@
 name: jobradar
 
-# Fase 1: só o banco. O Worker entra na Fase 7 (docs/architecture.md).
+# Segredos só no .env (nunca versionado). Veja .env.example e o README.
+# Só o banco (para os testes e o desenvolvimento): docker compose up -d db
+# Tudo:                                            docker compose up -d --build
 services:
   db:
     image: postgres:17-alpine
@@ -8,7 +10,6 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-jobradar}
       POSTGRES_USER: ${POSTGRES_USER:-jobradar}
-      # Obrigatória: definida no .env (nunca versionado). Veja .env.example.
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
     ports:
       # 5434 no host: 5432 e 5433 costumam estar ocupadas por outros PostgreSQL locais.
@@ -20,6 +21,41 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  worker:
+    build: .
+    image: jobradar-worker:local
+    restart: unless-stopped
+    # tini como PID 1: recolhe processos órfãos do Claude Code.
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    # Variáveis vazias não impedem o "up" do banco sozinho; o Worker valida tudo no
+    # startup e para com uma mensagem clara se faltar algo.
+    environment:
+      ConnectionStrings__JobRadar: "Host=db;Port=5432;Database=${POSTGRES_DB:-jobradar};Username=${POSTGRES_USER:-jobradar};Password=${POSTGRES_PASSWORD:-}"
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
+      Claude__Model: ${CLAUDE_MODEL:-}
+      Claude__MaxConcurrency: ${CLAUDE_MAX_CONCURRENCY:-2}
+      Claude__TimeoutSeconds: ${CLAUDE_TIMEOUT_SECONDS:-180}
+      Discord__BotToken: ${DISCORD_BOT_TOKEN:-}
+      Discord__ChannelId: ${DISCORD_CHANNEL_ID:-0}
+      Imap__Host: ${IMAP_HOST:-imap.gmail.com}
+      Imap__Port: ${IMAP_PORT:-993}
+      Imap__User: ${IMAP_USER:-}
+      Imap__Password: ${IMAP_PASSWORD:-}
+      Imap__Folder: ${IMAP_FOLDER:-INBOX}
+      Imap__LookbackDays: ${IMAP_LOOKBACK_DAYS:-7}
+      Monitoring__CollectCron: ${MONITORING_COLLECT_CRON:-*/15 * * * *}
+      Notification__MinimumScore: ${NOTIFICATION_MINIMUM_SCORE:-75}
+    volumes:
+      # O perfil é editável sem rebuild: altere config/profile.json e reinicie o worker.
+      - ./config:/app/config:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   db-data:
