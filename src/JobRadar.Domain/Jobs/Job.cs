@@ -41,6 +41,13 @@ public sealed class Job
 
     public int AnalysisAttempts { get; private set; }
 
+    public string? LastAnalysisError { get; private set; }
+
+    public DateTimeOffset? NextAnalysisAttemptAt { get; private set; }
+
+    /// <summary>Até quando a análise em curso é de quem a reivindicou.</summary>
+    public DateTimeOffset? AnalysisLeasedUntil { get; private set; }
+
     public static Job Create(
         JobSource source,
         string title,
@@ -106,7 +113,43 @@ public sealed class Job
         return missing;
     }
 
-    public bool IsDueForAnalysis(DateTimeOffset now) => AnalysisStatus == AnalysisStatus.Pending;
+    /// <summary>
+    /// Pendente, com nova tentativa vencida, ou com a reivindicação expirada
+    /// (o worker que a pegou morreu).
+    /// </summary>
+    public bool IsDueForAnalysis(DateTimeOffset now) => AnalysisStatus switch
+    {
+        AnalysisStatus.Pending => true,
+        AnalysisStatus.RetryScheduled => NextAnalysisAttemptAt <= now,
+        AnalysisStatus.Analyzing => AnalysisLeasedUntil < now,
+        _ => false,
+    };
+
+    public void StartAnalysis(DateTimeOffset now, TimeSpan lease)
+    {
+        AnalysisStatus = AnalysisStatus.Analyzing;
+        AnalysisLeasedUntil = now + lease;
+    }
+
+    public void MarkAnalyzed()
+    {
+        AnalysisStatus = AnalysisStatus.Analyzed;
+        AnalysisLeasedUntil = null;
+        NextAnalysisAttemptAt = null;
+        LastAnalysisError = null;
+    }
+
+    /// <summary>A vaga nunca se perde: ou ganha nova tentativa, ou fica marcada como falha.</summary>
+    public void RecordAnalysisFailure(FailureKind kind, string error, RetryPolicy policy, DateTimeOffset now)
+    {
+        AnalysisAttempts++;
+        LastAnalysisError = ErrorText.Truncate(error);
+        AnalysisLeasedUntil = null;
+
+        var decision = policy.Decide(AnalysisAttempts, kind, now);
+        AnalysisStatus = decision.ShouldRetry ? AnalysisStatus.RetryScheduled : AnalysisStatus.Failed;
+        NextAnalysisAttemptAt = decision.NextAttemptAt;
+    }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
