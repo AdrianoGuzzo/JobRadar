@@ -28,12 +28,17 @@ services:
     restart: unless-stopped
     # tini como PID 1: recolhe processos órfãos do Claude Code.
     init: true
+    ports:
+      - "${DASHBOARD_HOST_PORT:-8080}:8080"
     depends_on:
       db:
         condition: service_healthy
     # Variáveis vazias não impedem o "up" do banco sozinho; o Worker valida tudo no
     # startup e para com uma mensagem clara se faltar algo.
     environment:
+      ASPNETCORE_URLS: http://+:8080
+      Dashboard__Username: ${DASHBOARD_USERNAME:-admin}
+      Dashboard__Password: ${DASHBOARD_PASSWORD:-}
       ConnectionStrings__JobRadar: "Host=db;Port=5432;Database=${POSTGRES_DB:-jobradar};Username=${POSTGRES_USER:-jobradar};Password=${POSTGRES_PASSWORD:-}"
       Analysis__Provider: ${ANALYSIS_PROVIDER:-Claude}
       Codex__Model: ${CODEX_MODEL:-}

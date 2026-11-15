@@ -1,6 +1,6 @@
 # Consultas de operação
 
-O MVP não tem API nem painel. O acompanhamento é feito por SQL direto no PostgreSQL.
+O painel de rotinas está disponível em `/rotinas` (veja o [README](../README.md#painel-e-execução-manual)). As consultas abaixo complementam o painel com detalhes das vagas e notificações no PostgreSQL.
 
 Para abrir uma sessão no banco do compose:
 
