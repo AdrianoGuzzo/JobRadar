@@ -4,6 +4,7 @@ using Hangfire.PostgreSql;
 using JobRadar.Worker.Composition;
 using JobRadar.Worker.Jobs;
 using JobRadar.Worker.Startup;
+using JobRadar.Worker.Dashboard;
 using Microsoft.Extensions.Options;
 using Serilog;
 
@@ -11,7 +12,8 @@ Log.Logger = new LoggerConfiguration().WriteTo.Console(formatProvider: CultureIn
 
 try
 {
-    var builder = Host.CreateApplicationBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddAntiforgery();
 
     builder.Services.AddSerilog((services, logger) => logger
         .ReadFrom.Configuration(builder.Configuration)
@@ -38,6 +40,15 @@ try
     });
 
     using var host = builder.Build();
+
+    host.UseHangfireDashboard("/rotinas", new DashboardOptions
+    {
+        DashboardTitle = "JobRadar — Rotinas",
+        AppPath = null,
+        DisplayStorageConnectionString = false,
+        Authorization = [new DashboardAuthorizationFilter(builder.Configuration)],
+    });
+    host.MapGet("/", () => Results.Redirect("/rotinas"));
 
     host.Services.GetRequiredService<IStartupValidator>().Validate();
     await host.Services.GetRequiredService<StartupTasks>().RunAsync(CancellationToken.None);

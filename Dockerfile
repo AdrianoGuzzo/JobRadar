@@ -14,7 +14,7 @@ ARG CODEX_VERSION=0.169.0
 RUN npm install -g @openai/codex@${CODEX_VERSION}
 
 # ---- runtime ----
-FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
 # Versão do Claude Code em que os flags de isolamento foram verificados (ADR-003).
 ARG CLAUDE_CODE_VERSION=2.1.319
@@ -38,6 +38,7 @@ RUN curl -fsSL https://claude.ai/install.sh | bash -s ${CLAUDE_CODE_VERSION} \
     && claude --version
 
 WORKDIR /app
+EXPOSE 8080
 COPY --from=build --chown=app:app /app/publish .
 
 ENV DOTNET_ENVIRONMENT=Production \

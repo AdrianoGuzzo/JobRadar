@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using Hangfire;
 using JobRadar.Application.Analysis;
 using JobRadar.Application.Jobs;
@@ -35,14 +36,17 @@ public sealed class RecurringJobs(CollectJobs collect, AnalyzePendingJobs analyz
     private const int LockTimeoutSeconds = 10;
 
     [AutomaticRetry(Attempts = 0)]
+    [DisplayName("Coletar vagas dos alertas de e-mail")]
     [DisableConcurrentExecution(LockTimeoutSeconds)]
     public Task<CollectJobsResult> CollectAsync(CancellationToken cancellationToken) => collect.ExecuteAsync(cancellationToken);
 
     [AutomaticRetry(Attempts = 0)]
+    [DisplayName("Analisar vagas pendentes com Claude")]
     [DisableConcurrentExecution(LockTimeoutSeconds)]
     public Task<AnalyzePendingJobsResult> AnalyzeAsync(CancellationToken cancellationToken) => analyze.ExecuteAsync(cancellationToken);
 
     [AutomaticRetry(Attempts = 0)]
+    [DisplayName("Enviar oportunidades no Discord")]
     [DisableConcurrentExecution(LockTimeoutSeconds)]
     public Task<NotifyMatchesResult> NotifyAsync(CancellationToken cancellationToken) => notify.ExecuteAsync(cancellationToken);
 }

@@ -120,6 +120,26 @@ No startup, o worker valida a configuração, aplica as migrations, importa o pe
 
 ## Operação
 
+### Painel e execução manual
+
+Defina `DASHBOARD_USERNAME` e uma senha em `DASHBOARD_PASSWORD` no `.env` do servidor e execute `docker compose up -d --build worker`.
+Abra `http://192.168.100.8:8080/rotinas` (ou o endereço da sua instalação) e entre com essas credenciais.
+A porta pode ser alterada por `DASHBOARD_HOST_PORT`. Sem senha configurada, o painel só permite requisições de loopback; o acesso pelo host ao container também exige senha.
+Para acesso pela internet, use HTTPS no proxy reverso, pois a autenticação Basic envia as credenciais em cada requisição.
+
+Em **Recurring Jobs / Tarefas recorrentes**, acompanhe as três rotinas, sua agenda e as últimas/próximas execuções.
+Selecione a rotina e clique em **Trigger now / Executar agora** para colocá-la imediatamente na fila, sem alterar a agenda:
+
+- `jobradar:collect`: coletar novos alertas de e-mail.
+- `jobradar:analyze`: analisar as vagas pendentes com Claude.
+- `jobradar:notify`: enviar as notificações elegíveis ao Discord.
+
+Para testar o fluxo completo, dispare a coleta, espere sua conclusão em **Succeeded**, dispare a análise e depois a notificação.
+As telas **Enqueued**, **Processing**, **Succeeded** e **Failed** mostram fila, processamento, conclusões e erros; abra uma execução para inspecionar seus detalhes.
+Uma execução concluída pode não encontrar itens novos. O botão mantém os checkpoints, os critérios de elegibilidade e as proteções contra duplicidade; falhas permanentes de vagas continuam sendo reprocessadas conforme as [consultas de operação](docs/consultas.md).
+
+O painel usa o [Dashboard oficial do Hangfire](https://docs.hangfire.io/en/latest/configuration/using-dashboard.html), no mesmo processo e banco das rotinas.
+
 | Tarefa | Como |
 |---|---|
 | Ver o que está acontecendo | `docker compose logs -f worker` |
