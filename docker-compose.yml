@@ -60,7 +60,7 @@ services:
       Notification__MinimumScore: ${NOTIFICATION_MINIMUM_SCORE:-75}
     volumes:
       # O perfil é editável sem rebuild: altere config/profile.json e reinicie o worker.
-      - ./config:/app/config:ro
+      - "${JOBRADAR_PROFILE_MOUNT:-./config:/app/config:ro}"
       - codex-auth:/home/app/.codex
     security_opt:
       - no-new-privileges:true
