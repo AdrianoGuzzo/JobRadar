@@ -1,5 +1,7 @@
 using Hangfire;
 using JobRadar.Application.Abstractions;
+using JobRadar.Infrastructure.Claude;
+using JobRadar.Infrastructure.Codex;
 using JobRadar.Domain.Notifications;
 using JobRadar.Worker.Jobs;
 using JobRadar.Worker.Startup;
@@ -11,6 +13,45 @@ namespace JobRadar.IntegrationTests.Worker;
 [Trait("Category", "Integration")]
 public sealed class CompositionTests
 {
+    [Theory]
+    [InlineData("Claude", typeof(ClaudeCodeJobAnalyzer))]
+    [InlineData("Codex", typeof(CodexJobAnalyzer))]
+    [InlineData("codex", typeof(CodexJobAnalyzer))]
+    public void Should_Select_Configured_Cli(string name, Type analyzerType)
+    {
+        var settings = WorkerTestHost.Settings();
+        settings["Analysis:Provider"] = name;
+        using var provider = WorkerTestHost.Build(settings);
+
+        provider.GetRequiredService<IJobAnalyzer>().Should().BeOfType(analyzerType);
+    }
+
+    [Theory]
+    [InlineData("Claude", "Codex")]
+    [InlineData("Codex", "Claude")]
+    public void Should_Validate_Only_Selected_Provider(string selected, string unused)
+    {
+        var settings = WorkerTestHost.Settings();
+        settings["Analysis:Provider"] = selected;
+        settings[unused + ":MaxConcurrency"] = "0";
+        using var provider = WorkerTestHost.Build(settings);
+
+        var act = () => provider.GetRequiredService<IStartupValidator>().Validate();
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Should_Reject_Unknown_Provider()
+    {
+        var settings = WorkerTestHost.Settings();
+        settings["Analysis:Provider"] = "unknown";
+
+        var act = () => WorkerTestHost.Build(settings);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*Analysis*Provider*");
+    }
+
     [Fact]
     public void Should_Resolve_Recurring_Jobs_And_Startup_Tasks()
     {

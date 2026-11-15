@@ -35,6 +35,10 @@ services:
     # startup e para com uma mensagem clara se faltar algo.
     environment:
       ConnectionStrings__JobRadar: "Host=db;Port=5432;Database=${POSTGRES_DB:-jobradar};Username=${POSTGRES_USER:-jobradar};Password=${POSTGRES_PASSWORD:-}"
+      Analysis__Provider: ${ANALYSIS_PROVIDER:-Claude}
+      Codex__Model: ${CODEX_MODEL:-}
+      Codex__MaxConcurrency: ${CODEX_MAX_CONCURRENCY:-2}
+      Codex__TimeoutSeconds: ${CODEX_TIMEOUT_SECONDS:-180}
       CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
       Claude__Model: ${CLAUDE_MODEL:-}
       Claude__MaxConcurrency: ${CLAUDE_MAX_CONCURRENCY:-2}
@@ -52,6 +56,7 @@ services:
     volumes:
       # O perfil é editável sem rebuild: altere config/profile.json e reinicie o worker.
       - ./config:/app/config:ro
+      - codex-auth:/home/app/.codex
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -59,3 +64,4 @@ services:
 
 volumes:
   db-data:
+  codex-auth:

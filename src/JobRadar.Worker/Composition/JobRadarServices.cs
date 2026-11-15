@@ -7,6 +7,7 @@ using JobRadar.Application.Profiles;
 using JobRadar.Domain.Common;
 using JobRadar.Domain.Notifications;
 using JobRadar.Infrastructure.Claude;
+using JobRadar.Infrastructure.Codex;
 using JobRadar.Infrastructure.Discord;
 using JobRadar.Infrastructure.LinkedIn;
 using JobRadar.Infrastructure.Persistence;
@@ -45,7 +46,26 @@ public static class JobRadarServices
         services.TryAddSingleton(TimeProvider.System);
         services.AddDbContextFactory<JobRadarDbContext>(options => options.UseJobRadarPostgres(connectionString));
 
-        AddValidatedOptions<ClaudeCliOptions>(services, configuration, ClaudeCliOptions.Section);
+        var analysisProvider = configuration["Analysis:Provider"] ?? "Claude";
+        if (!analysisProvider.Equals("Claude", StringComparison.OrdinalIgnoreCase)
+            && !analysisProvider.Equals("Codex", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Analysis:Provider deve ser Claude ou Codex.");
+        }
+
+        var useCodex = analysisProvider.Equals("Codex", StringComparison.OrdinalIgnoreCase);
+        services.AddSingleton(new AnalysisProvider(useCodex));
+        if (useCodex)
+        {
+            AddValidatedOptions<CodexCliOptions>(services, configuration, CodexCliOptions.Section);
+            services.AddOptions<ClaudeCliOptions>();
+        }
+        else
+        {
+            AddValidatedOptions<ClaudeCliOptions>(services, configuration, ClaudeCliOptions.Section);
+            services.AddOptions<CodexCliOptions>();
+        }
+
         AddValidatedOptions<DiscordOptions>(services, configuration, DiscordOptions.Section);
         AddValidatedOptions<ImapOptions>(services, configuration, ImapOptions.Section);
         AddValidatedOptions<MonitoringOptions>(services, configuration, MonitoringOptions.Section);
@@ -65,9 +85,13 @@ public static class JobRadarServices
         services.AddSingleton<IJobMatchRepository, JobMatchRepository>();
         services.AddSingleton<INotificationRepository, NotificationRepository>();
 
-        // Um único analisador: o semáforo dele é o limite global de processos do Claude.
+        // O analisador selecionado mantém um limite global de processos do CLI.
         services.AddSingleton<ClaudeCodeJobAnalyzer>();
-        services.AddSingleton<IJobAnalyzer>(provider => provider.GetRequiredService<ClaudeCodeJobAnalyzer>());
+        services.AddSingleton<CodexJobAnalyzer>();
+        services.AddSingleton<IJobAnalyzer>(provider => useCodex
+            ? provider.GetRequiredService<CodexJobAnalyzer>()
+            : provider.GetRequiredService<ClaudeCodeJobAnalyzer>());
+        services.AddSingleton<CodexCliCheck>();
         services.AddSingleton<ClaudeCliVersionCheck>();
 
         services.AddSingleton<DiscordNotificationService>();
@@ -90,3 +114,5 @@ public static class JobRadarServices
         where TOptions : class =>
         services.AddOptions<TOptions>().Bind(configuration.GetSection(section)).ValidateDataAnnotations().ValidateOnStart();
 }
+
+public sealed record AnalysisProvider(bool UseCodex);

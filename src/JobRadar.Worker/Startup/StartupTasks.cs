@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using JobRadar.Application.Profiles;
 using JobRadar.Infrastructure.Claude;
+using JobRadar.Infrastructure.Codex;
+using JobRadar.Worker.Composition;
 using JobRadar.Infrastructure.Persistence;
 using JobRadar.Infrastructure.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -19,13 +21,15 @@ public sealed class ProfileOptions
 
 /// <summary>
 /// O que roda antes de o Worker começar a agendar: aplica as migrations, importa
-/// o perfil e confere o Claude Code. Qualquer falha aqui para o Worker com uma
+/// o perfil e confere o CLI selecionado. Qualquer falha aqui para o Worker com uma
 /// mensagem clara, em vez de deixar vagas falharem uma a uma.
 /// </summary>
 public sealed partial class StartupTasks(
     IDbContextFactory<JobRadarDbContext> contexts,
     SyncCandidateProfile syncProfile,
     ClaudeCliVersionCheck claudeCheck,
+    CodexCliCheck codexCheck,
+    AnalysisProvider analysisProvider,
     IOptions<ProfileOptions> profileOptions,
     ILogger<StartupTasks> logger)
 {
@@ -41,6 +45,13 @@ public sealed partial class StartupTasks(
         var content = ProfileFileReader.Read(profileOptions.Value.Path);
         await syncProfile.ExecuteAsync(content, cancellationToken);
 
+        if (analysisProvider.UseCodex)
+        {
+            await codexCheck.CheckAsync(cancellationToken);
+            LogCodexReady(logger);
+            return;
+        }
+
         var claude = await claudeCheck.CheckAsync(cancellationToken);
 
         if (!claude.IsUsable)
@@ -50,6 +61,9 @@ public sealed partial class StartupTasks(
 
         LogClaudeReady(logger, claude.Version!);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Codex CLI disponível e autenticado.")]
+    private static partial void LogCodexReady(ILogger logger);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Banco de dados atualizado.")]
     private static partial void LogMigrated(ILogger logger);

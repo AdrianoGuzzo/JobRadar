@@ -28,10 +28,22 @@ public sealed class EndToEndTests(PostgresFixture postgres) : IAsyncDisposable
 
     public ValueTask DisposeAsync() => _discord.DisposeAsync();
 
-    [Fact]
-    public async Task Should_Notify_Each_Compatible_Job_Exactly_Once()
+    [Theory]
+    [InlineData("Claude")]
+    [InlineData("Codex")]
+    public async Task Should_Notify_Each_Compatible_Job_Exactly_Once(string analysisProvider)
     {
-        var (database, provider) = await StartAsync();
+        var (database, provider) = await StartAsync(settings =>
+        {
+            settings["Analysis:Provider"] = analysisProvider;
+            settings["Codex:ExecutablePath"] = WorkerTestHost.FakeClaude;
+            settings["Codex:AdditionalEnvironment:FAKE_CLAUDE_VERSION"] = "codex-cli 0.169.0";
+            if (analysisProvider == "Codex")
+            {
+                settings["Claude:ExecutablePath"] = "nao-existe-claude";
+                settings["Claude:RequireOAuthToken"] = "true";
+            }
+        });
         await using var _ = provider;
         var jobs = provider.GetRequiredService<RecurringJobs>();
 

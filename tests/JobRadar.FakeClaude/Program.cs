@@ -32,6 +32,51 @@ internal static class Program
             return 0;
         }
 
+        if (args.Length > 0 && args[0] == "login")
+        {
+            return Environment.GetEnvironmentVariable("FAKE_CLAUDE_SCENARIO") == "error-auth" ? 1 : 0;
+        }
+
+        if (args.Length > 0 && args[0] == "exec")
+        {
+            var prompt = await Console.In.ReadToEndAsync();
+            var mode = Environment.GetEnvironmentVariable("FAKE_CLAUDE_SCENARIO") ?? "valid";
+            if (mode == "hang")
+            {
+                await Task.Delay(Timeout.Infinite);
+            }
+
+            if (mode == "error-auth")
+            {
+                Console.Error.Write("authentication failed: not logged in");
+                return 1;
+            }
+
+            if (mode == "error-rate-limit")
+            {
+                Console.Error.Write("rate limit");
+                return 1;
+            }
+
+            var output = args[Array.IndexOf(args, "--output-last-message") + 1];
+            if (mode != "missing-output")
+            {
+                await File.WriteAllTextAsync(output, mode == "invalid-json" ? "invalid" : ValidAnalysis);
+            }
+
+            if (mode == "echo")
+            {
+                var directory = Environment.GetEnvironmentVariable("FAKE_CLAUDE_STATE_DIR")!;
+                await File.WriteAllTextAsync(Path.Combine(directory, "codex-invocation.json"), JsonSerializer.Serialize(new
+                {
+                    args, stdin = prompt, cwd = Environment.CurrentDirectory,
+                    env = Environment.GetEnvironmentVariables().Keys.Cast<string>().ToArray(),
+                }));
+            }
+
+            return 0;
+        }
+
         Console.OutputEncoding = new UTF8Encoding(false);
         Console.InputEncoding = new UTF8Encoding(false);
         var stdin = await Console.In.ReadToEndAsync();

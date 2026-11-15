@@ -3,7 +3,7 @@
 O JobRadar monitora vagas de emprego para você:
 
 - **Fonte:** lê os **alertas de vaga que o LinkedIn manda por e-mail** (IMAP, só leitura, sem scraping).
-- **Análise:** compara cada vaga com o seu perfil profissional usando o **Claude Code CLI**.
+- **Análise:** compara cada vaga com o seu perfil profissional usando o **Claude Code CLI ou Codex CLI**.
 - **Notificação:** publica no **Discord** as vagas com compatibilidade a partir de 75% (configurável).
 
 Status: **MVP**. Documentação:
@@ -45,6 +45,44 @@ claude setup-token
 O comando gera um token de longa duração. Ele vai em `CLAUDE_CODE_OAUTH_TOKEN`, e a análise consome a sua assinatura.
 
 Para testar a conta antes, rode `claude -p "ok"`. Se responder `Credit balance is too low` ou erro de login, resolva isso primeiro: o JobRadar trata esse erro como permanente.
+
+### Alternativa: Codex CLI
+
+A análise pode usar **Claude Code CLI** ou **Codex CLI**, sem integração direta com APIs.
+Escolha no `.env`:
+
+```dotenv
+ANALYSIS_PROVIDER=Codex
+CODEX_MODEL=
+CODEX_MAX_CONCURRENCY=2
+CODEX_TIMEOUT_SECONDS=180
+```
+
+Com Codex selecionado, `CLAUDE_CODE_OAUTH_TOKEN` pode ficar vazio.
+Faça o login da sua conta ChatGPT no container (uma vez):
+
+```powershell
+docker compose build worker
+docker compose run --rm --no-deps worker codex login --device-auth
+docker compose up -d
+```
+
+Siga a URL e o código mostrados pelo CLI. Se necessário, habilite o login por dispositivo
+nas configurações de segurança da conta. A autenticação fica no volume `codex-auth`,
+fora do repositório, e pode ser renovada repetindo o login. Não remova esse volume
+se quiser preservar a sessão.
+
+Para voltar ao Claude, defina `ANALYSIS_PROVIDER=Claude`, preencha o token dele e rode
+`docker compose up -d`. A configuração só valida o CLI selecionado.
+
+Fora do Docker, instale Codex CLI 0.169.0 ou superior, execute `codex login`, defina
+`Analysis__Provider=Codex` e, se necessário, `Codex__ExecutablePath` apontando para o
+binário nativo (`codex.exe` no Windows, sem wrapper `.cmd`).
+
+O Codex roda com `exec`, schema JSON, diretório temporário, sandbox de leitura,
+sem configuração pessoal, regras, shell ou busca web e sem persistência de sessões.
+A verificação inicial de instalação e login não chama o modelo. As análises reais
+consomem os limites da conta selecionada.
 
 ### 2. Bot do Discord
 
