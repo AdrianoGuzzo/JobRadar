@@ -16,6 +16,8 @@ public sealed class JobRadarDbContext(DbContextOptions<JobRadarDbContext> option
 
     public DbSet<Job> Jobs => Set<Job>();
 
+    public DbSet<JobReview> JobReviews => Set<JobReview>();
+
     public DbSet<CandidateProfile> CandidateProfiles => Set<CandidateProfile>();
 
     public DbSet<JobMatch> JobMatches => Set<JobMatch>();

@@ -39,6 +39,9 @@ public sealed partial class DiscordNotificationService(IOptions<DiscordOptions> 
             var channel = await GetChannelAsync(timeout.Token);
             var sent = await channel.SendMessageAsync(
                 text: DiscordMessageFormatter.Format(message),
+                components: _options.InteractionsEnabled && message.NotificationId is { } id
+                    ? JobReviewComponents.Build(id, message.ReviewStatus)
+                    : null,
                 allowedMentions: AllowedMentions.None,
                 options: RequestOptions(timeout.Token));
 

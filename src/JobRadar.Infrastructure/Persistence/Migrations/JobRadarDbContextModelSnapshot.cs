@@ -166,6 +166,30 @@ namespace JobRadar.Infrastructure.Persistence.Migrations
                     b.ToTable("Jobs");
                 });
 
+            modelBuilder.Entity("JobRadar.Domain.Jobs.JobReview", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("DecidedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DecidedBy")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("JobId");
+
+                    b.HasIndex("Status", "DecidedAt", "JobId")
+                        .IsDescending(false, true, false);
+
+                    b.ToTable("JobReviews");
+                });
+
             modelBuilder.Entity("JobRadar.Domain.Jobs.JobSearchConfiguration", b =>
                 {
                     b.Property<int>("SourceId")
@@ -304,6 +328,15 @@ namespace JobRadar.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("JobRadar.Domain.Jobs.JobReview", b =>
+                {
+                    b.HasOne("JobRadar.Domain.Jobs.Job", null)
+                        .WithOne()
+                        .HasForeignKey("JobRadar.Domain.Jobs.JobReview", "JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

@@ -18,6 +18,10 @@ public sealed record JobNotificationMessage(
     string Summary,
     string Url)
 {
+    public Guid? NotificationId { get; init; }
+
+    public JobReviewStatus ReviewStatus { get; init; }
+
     public static JobNotificationMessage From(Job job, JobMatch match, string sourceName) => new(
         job.Title,
         job.Company,

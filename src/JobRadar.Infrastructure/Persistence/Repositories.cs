@@ -220,7 +220,10 @@ public sealed class NotificationRepository(IDbContextFactory<JobRadarDbContext> 
         var matches = await context.JobMatches.AsNoTracking().Where(match => matchIds.Contains(match.Id)).ToDictionaryAsync(match => match.Id, cancellationToken);
         var sources = await context.JobSources.AsNoTracking().ToDictionaryAsync(source => source.Id, source => source.Name, cancellationToken);
 
-        return [.. notifications.Select(n => new NotificationWork(n, jobs[n.JobId], matches[n.JobMatchId], sources[jobs[n.JobId].SourceId]))];
+        var reviews = await context.JobReviews.AsNoTracking().Where(review => jobIds.Contains(review.JobId))
+            .ToDictionaryAsync(review => review.JobId, review => review.Status, cancellationToken);
+        return [.. notifications.Select(n => new NotificationWork(n, jobs[n.JobId], matches[n.JobMatchId],
+            sources[jobs[n.JobId].SourceId], reviews.GetValueOrDefault(n.JobId)))];
     }
 
     public async Task UpdateAsync(Notification notification, CancellationToken cancellationToken)
