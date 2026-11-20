@@ -50,6 +50,9 @@ services:
       Claude__TimeoutSeconds: ${CLAUDE_TIMEOUT_SECONDS:-180}
       Discord__BotToken: ${DISCORD_BOT_TOKEN:-}
       Discord__ChannelId: ${DISCORD_CHANNEL_ID:-0}
+      Discord__InteractionsEnabled: ${DISCORD_INTERACTIONS_ENABLED:-false}
+      Discord__GuildId: ${DISCORD_GUILD_ID:-0}
+      Discord__AllowedUserIds: ${DISCORD_ALLOWED_USER_IDS:-}
       Imap__Host: ${IMAP_HOST:-imap.gmail.com}
       Imap__Port: ${IMAP_PORT:-993}
       Imap__User: ${IMAP_USER:-}

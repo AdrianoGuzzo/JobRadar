@@ -20,6 +20,23 @@ public sealed class DiscordNotificationServiceTests : IAsyncDisposable
     public ValueTask DisposeAsync() => _server.DisposeAsync();
 
     [Fact]
+    public async Task Should_Send_Review_Buttons_With_Stable_Notification_Id()
+    {
+        await using var service = Service(interactionsEnabled: true);
+        var id = Guid.NewGuid();
+
+        await service.SendAsync(Message() with { NotificationId = id, ReviewStatus = JobReviewStatus.Approved }, Ct);
+
+        using var body = JsonDocument.Parse(_server.Requests.Single(request => request.Method == "POST").Body);
+        var buttons = body.RootElement.GetProperty("components")[0].GetProperty("components");
+        buttons[0].GetProperty("label").GetString().Should().Be("Gostei");
+        buttons[0].GetProperty("custom_id").GetString().Should().Be($"job-review:v1:approve:{id:N}");
+        buttons[1].GetProperty("label").GetString().Should().Be("Descartar");
+        buttons[2].GetProperty("label").GetString().Should().Be("Aprovada");
+        buttons[2].GetProperty("disabled").GetBoolean().Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Should_Send_Formatted_Message_To_Configured_Channel()
     {
         await using var service = Service();
@@ -136,8 +153,9 @@ public sealed class DiscordNotificationServiceTests : IAsyncDisposable
         messageId.Should().NotBeNullOrEmpty();
     }
 
-    private DiscordNotificationService Service(int requestTimeoutSeconds = 10) => new(
-        Options.Create(new DiscordOptions { BotToken = Token, ChannelId = 222, ApiBaseUrl = _server.BaseUrl, RequestTimeoutSeconds = requestTimeoutSeconds }),
+    private DiscordNotificationService Service(int requestTimeoutSeconds = 10, bool interactionsEnabled = false) => new(
+        Options.Create(new DiscordOptions { BotToken = Token, ChannelId = 222, ApiBaseUrl = _server.BaseUrl,
+            RequestTimeoutSeconds = requestTimeoutSeconds, InteractionsEnabled = interactionsEnabled }),
         NullLogger<DiscordNotificationService>.Instance);
 
     private static JobNotificationMessage Message() => new(

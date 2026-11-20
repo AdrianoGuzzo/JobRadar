@@ -28,7 +28,7 @@ tests/
 - Domain ← Application ← Infrastructure ← Worker.
 - `tests/JobRadar.UnitTests/Architecture/LayerDependencyTests.cs` falha se Domain ou Application usarem tecnologia de infraestrutura: EF Core, Npgsql, Discord, MailKit, AngleSharp, Hangfire, Serilog ou Hosting.
 
-O projeto `JobRadar.DiscordBot` fica para a fase dos comandos interativos. No MVP, a notificação usa só a API REST do Discord (`Discord.Net.Rest`) a partir do Infrastructure, sem gateway.
+A publicação de alertas usa `Discord.Net.Rest` a partir do Infrastructure. Com as avaliações habilitadas, um serviço hospedado no Worker recebe botões e comandos via `Discord.Net.WebSocket`. Ele confirma a interação antes de acessar o PostgreSQL. Execute um consumidor do Gateway por bot.
 
 ## Fluxo de processamento
 
@@ -66,6 +66,7 @@ Detalhes nos ADRs:
 | `Job` | Título, empresa, localização, modalidade, URL normalizada, descrição, `ExternalId`, `Fingerprint`, `FoundAt`. Estado da análise: status, tentativas, último erro, próxima tentativa. |
 | `JobMatch` | Histórico das análises, único por `(JobId, ProfileVersion)`. Guarda score (0 a 100), recommendation, strengths, gaps, technologyMatches, missingInformation e summary. |
 | `Notification` | Única por `(JobId, CandidateProfileId)`. Guarda status, tentativas, lease, último erro, `SentAt` e o id da mensagem no Discord. |
+| `JobReview` | Uma decisão compartilhada por `JobId`, com status, ID do usuário Discord e horário UTC da última mudança. A ausência de linha representa uma vaga pendente. |
 | `JobSearchConfiguration` | Pasta IMAP, `UIDVALIDITY`, último UID lido e `LastCheckedAt`. |
 
 Os campos opcionais de `Job` nunca descartam a vaga. Informação ausente fica explícita em `missingInformation`.
@@ -80,6 +81,7 @@ No Docker, o `docker-compose.yml` traduz as variáveis do `.env` (ver `.env.exam
 | `CLAUDE_CODE_OAUTH_TOKEN` | Login do Claude Code (`claude setup-token`). É exigido no container (`Claude__RequireOAuthToken`) |
 | `Claude__ExecutablePath`, `Claude__Model`, `Claude__TimeoutSeconds` (180), `Claude__MaxConcurrency` (2), `Claude__MaxTurns` (3), `Claude__UseJsonSchema` (true) | Analisador |
 | `Discord__BotToken`, `Discord__ChannelId` | Notificação (obrigatórias) |
+| `Discord__InteractionsEnabled`, `Discord__GuildId`, `Discord__AllowedUserIds` | Ativação das avaliações e da consulta, servidor e IDs autorizados separados por vírgulas. |
 | `Imap__Host`, `Imap__Port` (993), `Imap__Security` (SslOnConnect), `Imap__User`, `Imap__Password`, `Imap__Folder` (INBOX), `Imap__LookbackDays` (7), `Imap__MaxMessagesPerRun` (50) | Fonte LinkedIn |
 | `Monitoring__CollectCron`, `Monitoring__AnalyzeCron`, `Monitoring__NotifyCron` | Agenda (cron em UTC) |
 | `Notification__MinimumScore` (75, de 0 a 100) | Limite de notificação |
@@ -99,7 +101,8 @@ Os segredos ficam só no `.env`, que está no `.gitignore`. Os logs nunca regist
 | Npgsql.EntityFrameworkCore.PostgreSQL, EF Core Design | Persistência |
 | Testcontainers.PostgreSql | Postgres e GreenMail reais nos testes de integração |
 | Microsoft.Extensions.Hosting, Options.DataAnnotations, Serilog (Hosting, Console, Settings.Configuration) | Host do Worker, opções validadas e logging |
-| Discord.Net.Rest | Só a parte REST ([ADR-005](decisions/005-discord-somente-rest.md)) |
+| Discord.Net.Rest | Publicação dos alertas ([ADR-005](decisions/005-discord-somente-rest.md)) |
+| Discord.Net.WebSocket | Gateway para receber os cliques e o comando de consulta |
 | MailKit, AngleSharp | IMAP e parser de HTML do e-mail |
 | Hangfire.Core, Hangfire.NetCore, Hangfire.PostgreSql | Gatilho recorrente ([ADR-004](decisions/004-hangfire-como-gatilho.md)) |
 

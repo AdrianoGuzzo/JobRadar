@@ -90,6 +90,18 @@ consomem os limites da conta selecionada.
 2. Em **OAuth2 → URL Generator**, marque o escopo `bot` e as permissões **View Channel** e **Send Messages**. Abra a URL e adicione o bot ao seu servidor.
 3. No Discord, ative **Configurações → Avançado → Modo desenvolvedor**. Depois clique com o botão direito no canal e escolha **Copiar ID**. O id vai em `DISCORD_CHANNEL_ID`.
 
+#### Avaliar vagas
+
+1. Instale o bot no servidor com os escopos `bot` e `applications.commands`. Mantenha **Interactions Endpoint URL** vazio no portal do Discord para receber interações pelo Gateway.
+2. No `.env`, defina `DISCORD_INTERACTIONS_ENABLED=true`, `DISCORD_GUILD_ID` com o ID do servidor e `DISCORD_ALLOWED_USER_IDS` com os IDs dos usuários autorizados, separados por vírgulas. Fora do Compose, use `Discord__InteractionsEnabled`, `Discord__GuildId` e `Discord__AllowedUserIds`.
+3. Execute `docker compose up -d --build`. O startup aplica a migração aditiva `AddJobReviews` ao PostgreSQL e o bot registra `/vagas-aprovadas` no servidor.
+4. Em um novo alerta, clique em **Gostei** e confira o estado **Aprovada** e a confirmação privada. Execute `/vagas-aprovadas`. Use a opção `pagina` para avançar, com cinco vagas por página.
+5. Execute `docker compose restart worker` e confirme que a vaga continua na lista. Na mesma mensagem, clique em **Descartar** e confirme que a vaga saiu da lista. Repita o clique para verificar a confirmação idempotente. Com uma conta fora da lista autorizada, confira que tanto o botão quanto o comando recusam acesso.
+
+Os botões aparecem nos alertas publicados a partir da ativação. A decisão é compartilhada por vaga. Se houver mais de uma mensagem para a mesma vaga, clicar em uma delas atualiza aquela mensagem. O comando consulta as decisões atuais.
+
+Execute `./scripts/test.ps1` com o Docker ativo para os testes de PostgreSQL e IMAP. Use `./scripts/test.ps1 -UnitOnly` para compilar e executar apenas os testes unitários.
+
 ### 3. Alertas do LinkedIn por e-mail
 
 1. No LinkedIn, crie alertas de vaga (busca → **Ativar alerta**) com entrega por e-mail.

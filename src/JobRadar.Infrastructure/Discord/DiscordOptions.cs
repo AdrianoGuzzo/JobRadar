@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace JobRadar.Infrastructure.Discord;
 
@@ -14,6 +15,28 @@ public sealed class DiscordOptions
     /// <summary>O canal que recebe as notificações.</summary>
     [Range(1, ulong.MaxValue)]
     public ulong ChannelId { get; set; }
+
+    public bool InteractionsEnabled { get; set; }
+
+    public ulong GuildId { get; set; }
+
+    public string AllowedUserIds { get; set; } = string.Empty;
+
+    public bool TryGetAllowedUsers(out HashSet<ulong> users)
+    {
+        users = [];
+        foreach (var value in AllowedUserIds.Split(',', StringSplitOptions.TrimEntries))
+        {
+            if (!ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var id) || id == 0)
+            {
+                return false;
+            }
+
+            users.Add(id);
+        }
+
+        return users.Count > 0;
+    }
 
     /// <summary>Só para testes: outra URL base da API (ex.: um servidor falso local).</summary>
     public string? ApiBaseUrl { get; set; }

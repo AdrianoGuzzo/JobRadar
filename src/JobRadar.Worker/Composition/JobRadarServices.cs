@@ -67,6 +67,9 @@ public static class JobRadarServices
         }
 
         AddValidatedOptions<DiscordOptions>(services, configuration, DiscordOptions.Section);
+        services.AddOptions<DiscordOptions>().Validate(
+            options => !options.InteractionsEnabled || (options.GuildId != 0 && options.TryGetAllowedUsers(out _)),
+            "Defina Discord__GuildId e Discord__AllowedUserIds para habilitar as interações.");
         AddValidatedOptions<ImapOptions>(services, configuration, ImapOptions.Section);
         AddValidatedOptions<MonitoringOptions>(services, configuration, MonitoringOptions.Section);
         AddValidatedOptions<NotificationOptions>(services, configuration, NotificationOptions.Section);
@@ -84,6 +87,9 @@ public static class JobRadarServices
         services.AddSingleton<ICandidateProfileRepository, CandidateProfileRepository>();
         services.AddSingleton<IJobMatchRepository, JobMatchRepository>();
         services.AddSingleton<INotificationRepository, NotificationRepository>();
+        services.AddSingleton<IJobReviewRepository, JobReviewRepository>();
+        services.AddSingleton<ReviewJobs>();
+        services.AddHostedService<DiscordInteractionWorker>();
 
         // O analisador selecionado mantém um limite global de processos do CLI.
         services.AddSingleton<ClaudeCodeJobAnalyzer>();

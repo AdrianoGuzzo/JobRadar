@@ -5,7 +5,7 @@ using JobRadar.Domain.Notifications;
 namespace JobRadar.Application.Abstractions;
 
 /// <summary>Uma notificação reivindicada, com o que é preciso para montar a mensagem.</summary>
-public sealed record NotificationWork(Notification Notification, Job Job, JobMatch Match, string SourceName);
+public sealed record NotificationWork(Notification Notification, Job Job, JobMatch Match, string SourceName, JobReviewStatus ReviewStatus = JobReviewStatus.Pending);
 
 public interface INotificationRepository
 {
