@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="JobRadar.IntegrationTests" />
     <ProjectReference Include="..\JobRadar.Infrastructure\JobRadar.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Discord.Net.WebSocket" />
     <PackageReference Include="Hangfire.Core" />
     <PackageReference Include="Hangfire.NetCore" />
     <PackageReference Include="Hangfire.AspNetCore" />

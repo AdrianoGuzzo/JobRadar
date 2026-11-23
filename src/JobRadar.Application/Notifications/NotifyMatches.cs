@@ -75,7 +75,12 @@ public sealed partial class NotifyMatches(
 
         try
         {
-            var messageId = await discord.SendAsync(JobNotificationMessage.From(work.Job, work.Match, work.SourceName), cancellationToken);
+            var message = JobNotificationMessage.From(work.Job, work.Match, work.SourceName) with
+            {
+                NotificationId = notification.Id,
+                ReviewStatus = work.ReviewStatus,
+            };
+            var messageId = await discord.SendAsync(message, cancellationToken);
             notification.MarkSent(messageId, time.GetUtcNow());
             LogSent(logger, work.Job.Id, work.Match.Score);
         }
@@ -86,7 +91,7 @@ public sealed partial class NotifyMatches(
                 : (FailureKind.Transient, $"Erro inesperado no envio ({exception.GetType().Name}).");
 
             notification.RecordFailure(kind, message, retryPolicy, time.GetUtcNow());
-            LogFailed(logger, exception, work.Job.Id, kind, notification.Attempts);
+            LogFailed(logger, work.Job.Id, kind, notification.Attempts);
             succeeded = false;
         }
 
@@ -98,5 +103,5 @@ public sealed partial class NotifyMatches(
     private static partial void LogSent(ILogger logger, Guid jobId, int score);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Falha ao notificar a vaga {JobId} ({Kind}, tentativa {Attempt}).")]
-    private static partial void LogFailed(ILogger logger, Exception exception, Guid jobId, FailureKind kind, int attempt);
+    private static partial void LogFailed(ILogger logger, Guid jobId, FailureKind kind, int attempt);
 }
